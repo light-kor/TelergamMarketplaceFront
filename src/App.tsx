@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
-import { initData } from '@twa-dev/sdk';
 
 function Home() {
   useEffect(() => {
-    // Initialize Telegram Web App
-    initData();
+    // Telegram Web App SDK will be initialized when needed
+    // We'll add proper initialization later when implementing Telegram features
+    console.log('Home page loaded');
   }, []);
 
   return (
