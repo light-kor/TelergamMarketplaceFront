@@ -34,6 +34,9 @@ export interface Ad {
   description: string | null;
   price: number;
   status: AdStatus;
+  channel_message_id: number | null;
+  channel_username: string | null;
+  discussion_group_id: number | null;
   created_at: string;
   updated_at: string;
 }
