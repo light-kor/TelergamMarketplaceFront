@@ -31,9 +31,9 @@ export interface Ad {
   category_id: number;
   city_id: number;
   title: string;
-  description: string | null;
   price: number;
   status: AdStatus;
+  preview_image_url: string | null;
   channel_message_id: number | null;
   channel_username: string | null;
   discussion_group_id: number | null;
@@ -43,18 +43,9 @@ export interface Ad {
   updated_at: string;
 }
 
-export interface AdImage {
-  id: number;
-  ad_id: number;
-  image_url: string;
-  image_order: number;
-  created_at: string;
-}
-
 export interface AdWithRelations extends Ad {
   user: User;
   category: Category;
   city: City;
-  images: AdImage[];
 }
 

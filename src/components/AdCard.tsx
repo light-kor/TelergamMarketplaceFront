@@ -76,9 +76,7 @@ export function AdCard({ ad, onClick }: AdCardProps) {
     }
   };
 
-  const firstImage = ad.images && ad.images.length > 0 
-    ? ad.images[0].image_url 
-    : 'https://via.placeholder.com/300x200?text=No+Image';
+  const previewImage = ad.preview_image_url || 'https://via.placeholder.com/300x200?text=No+Image';
 
   const formatPrice = (price: number | string): string => {
     const numPrice = typeof price === 'string' ? parseFloat(price) : price;
@@ -96,14 +94,14 @@ export function AdCard({ ad, onClick }: AdCardProps) {
       className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-200"
     >
       <div className="relative w-full aspect-[4/3] bg-gray-100 overflow-hidden pointer-events-none">
-        <img
-          src={firstImage}
-          alt={ad.title}
-          className="w-full h-full object-cover pointer-events-none"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300x200?text=No+Image';
-          }}
-        />
+              <img
+                src={previewImage}
+                alt={ad.title}
+                className="w-full h-full object-cover pointer-events-none"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300x200?text=No+Image';
+                }}
+              />
       </div>
 
       <div className="p-3">
