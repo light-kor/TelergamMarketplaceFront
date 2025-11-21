@@ -1,4 +1,6 @@
 export const config = {
-  apiUrl: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+  // Используем относительный путь для API, чтобы работал Vite proxy
+  // В production можно указать полный URL через VITE_API_URL
+  apiUrl: import.meta.env.VITE_API_URL || '/api',
 };
 

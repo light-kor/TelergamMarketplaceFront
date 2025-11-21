@@ -7,22 +7,36 @@ interface AdCardProps {
 
 export function AdCard({ ad, onClick }: AdCardProps) {
   const getTelegramPostUrl = (): string | null => {
-    if (!ad.channel_message_id) {
+    // Нужен channel_message_id для формирования ссылки
+    if (!ad.channel_message_id || !ad.channel_username) {
       return null;
     }
 
+    const channelName = ad.channel_username.replace('@', '');
+    
+    // Если есть ID сообщения в группе обсуждений, используем формат с параметром ?comment=
+    // Это открывает пост сразу в группе обсуждений на уровне комментариев!
+    // Формат: https://t.me/channel_username/channel_message_id?comment=discussion_group_message_id
+    if (ad.discussion_group_message_id) {
+      return `https://t.me/${channelName}/${ad.channel_message_id}?comment=${ad.discussion_group_message_id}`;
+    }
+    
+    // Если нет discussion_group_message_id, но есть группа обсуждений,
+    // пробуем использовать channel_message_id как ID в группе
+    if (ad.discussion_group_username) {
+      const groupUsername = ad.discussion_group_username.replace('@', '');
+      // Пробуем формат с параметром comment, используя channel_message_id
+      // Это может сработать, если ID совпадают
+      return `https://t.me/${channelName}/${ad.channel_message_id}?comment=${ad.channel_message_id}`;
+    }
+    
     if (ad.discussion_group_id) {
-      // Формат для открытия поста в группе обсуждений: https://t.me/c/GROUP_ID/MESSAGE_ID
-      const groupId = Math.abs(ad.discussion_group_id);
-      return `https://t.me/c/${groupId}/${ad.channel_message_id}`;
+      // Для приватных групп тоже пробуем формат с comment
+      return `https://t.me/${channelName}/${ad.channel_message_id}?comment=${ad.channel_message_id}`;
     }
     
-    if (ad.channel_username) {
-      const channelName = ad.channel_username.replace('@', '');
-      return `https://t.me/${channelName}/${ad.channel_message_id}`;
-    }
-    
-    return null;
+    // Fallback на канал без комментариев
+    return `https://t.me/${channelName}/${ad.channel_message_id}`;
   };
 
   const handleClick = (e: React.MouseEvent) => {
@@ -31,23 +45,36 @@ export function AdCard({ ad, onClick }: AdCardProps) {
     
     const postUrl = getTelegramPostUrl();
     
-    if (postUrl) {
-      if (window.Telegram?.WebApp?.openLink) {
+    if (!postUrl) {
+      if (onClick) {
+        onClick();
+      }
+      return;
+    }
+
+    // В Mini App используем openLink для открытия ссылки
+    // openLink автоматически сворачивает Mini App и открывает ссылку в Telegram
+    // НЕ нужно вызывать close() перед openLink - это может вызвать проблемы на Android
+    if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      
+      // Используем openLink - он сам закроет Mini App и откроет ссылку
+      // Это работает правильно на всех платформах (PC, Android, iOS)
+      if (tg.openLink) {
         try {
-          window.Telegram.WebApp.openLink(postUrl, { try_instant_view: false });
+          tg.openLink(postUrl, { try_instant_view: false });
         } catch (error) {
           console.error('Error opening link:', error);
+          // Fallback на window.location.href
           window.location.href = postUrl;
         }
       } else {
-        // Fallback для разработки
-        if (ad.channel_username && ad.channel_message_id) {
-          const channelName = ad.channel_username.replace('@', '');
-          window.open(`https://t.me/${channelName}/${ad.channel_message_id}`, '_blank');
-        }
+        // Fallback, если openLink недоступен
+        window.location.href = postUrl;
       }
-    } else if (onClick) {
-      onClick();
+    } else {
+      // Fallback для разработки в браузере
+      window.open(postUrl, '_blank');
     }
   };
 
