@@ -64,8 +64,6 @@ export function AdCard({ ad, onClick }: AdCardProps) {
         try {
           tg.openLink(postUrl, { try_instant_view: false });
         } catch (error) {
-          console.error('Error opening link:', error);
-          // Fallback на window.location.href
           window.location.href = postUrl;
         }
       } else {
