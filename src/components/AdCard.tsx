@@ -14,24 +14,20 @@ export function AdCard({ ad, onClick }: AdCardProps) {
 
     const channelName = ad.channel_username.replace('@', '');
     
+    // Для публичного канала формат ссылок всегда стандартный:
+    // https://t.me/channel_username/message_id?comment=discussion_group_message_id
+    // Приватность группы обсуждений не влияет на формат ссылок на посты в публичном канале
+    
     // Если есть ID сообщения в группе обсуждений, используем формат с параметром ?comment=
     // Это открывает пост сразу в группе обсуждений на уровне комментариев!
-    // Формат: https://t.me/channel_username/channel_message_id?comment=discussion_group_message_id
     if (ad.discussion_group_message_id) {
       return `https://t.me/${channelName}/${ad.channel_message_id}?comment=${ad.discussion_group_message_id}`;
     }
     
     // Если нет discussion_group_message_id, но есть группа обсуждений,
     // пробуем использовать channel_message_id как ID в группе
-    if (ad.discussion_group_username) {
-      const groupUsername = ad.discussion_group_username.replace('@', '');
-      // Пробуем формат с параметром comment, используя channel_message_id
-      // Это может сработать, если ID совпадают
-      return `https://t.me/${channelName}/${ad.channel_message_id}?comment=${ad.channel_message_id}`;
-    }
-    
+    // (в большинстве случаев ID сообщения в группе совпадает с ID в канале)
     if (ad.discussion_group_id) {
-      // Для приватных групп тоже пробуем формат с comment
       return `https://t.me/${channelName}/${ad.channel_message_id}?comment=${ad.channel_message_id}`;
     }
     
